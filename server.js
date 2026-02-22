@@ -1,17 +1,27 @@
 const express = require('express');
-const http = require('http');
 const app = express();
+const cors = require('cors');
 
-// स्टैटिक फाइल्स (जैसे HTML, CSS, JS) को सर्व करना
-app.use(express.static('.'));  // इसी डायरेक्टरी से फाइलें लेंगी
+app.use(express.json());
+app.use(cors());
 
-// रूट हैंडलर: मुख्य पेज सर्व करना
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+let messages = [];
+
+app.post('/messages', (req, res) => {
+    const { name, message } = req.body;
+    if (name && message) {
+        messages.push({ name, message });
+        res.status(200).send({ status: 'Message received' });
+    } else {
+        res.status(400).send({ error: 'Name and message required' });
+    }
 });
 
-// सर्वर को चलाना
-const server = http.createServer(app);
-server.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+app.get('/messages', (req, res) => {
+    res.status(200).json(messages);
+});
+
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
 });
